@@ -1,0 +1,22 @@
+{
+  "name": "inbox",
+  "version": "1.0.0",
+  "description": "Ethereum and Solidity: The Complete Developer's Guide",
+  "main": "compile.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jesseroyc/ether-course-inbox-app.git"
+  },
+  "author": "jesseroyc",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/jesseroyc/ether-course-inbox-app/issues"
+  },
+  "homepage": "https://github.com/jesseroyc/ether-course-inbox-app#readme",
+  "dependencies": {
+    "solc": "^0.4.21"
+  }
+}
