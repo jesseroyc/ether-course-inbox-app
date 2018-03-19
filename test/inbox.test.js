@@ -1,41 +1,37 @@
 const assert = require('assert');
-const ganache = require('ganache-cli'); //local test-net
-const Web3 = require('web3'); //note that the variable is not camel case, its a class
+const ganache = require('ganache-cli');
+const Web3 = require('web3');
+ 
+const provider = ganache.provider();
+const web3 = new Web3(provider);
+ 
+const { interface, bytecode } = require('../compile');
+ 
+let accounts;
+let inbox;
+ 
+beforeEach(async () => {
 
-/* Web3 has two diffrent versions floating around
-    v0.x.x primitive interface, no promises uglyier looking code
-    (Ideal) v1.x.x supports promises and asynch/await
-*/
+  accounts = await web3.eth.getAccounts();
 
-/* |Ganache| -> |Provider| ()web3 <- |Web3|
-   |Ganache| -> (|Provider|)web3 <- |Web3|
-    think of provider as a comm device cell phone
-*/
-
-const web3 = new Web3(ganache.provider());
-
-/* Mocha test dev cycle
-                  (before each)          (it)                    (it)
-  Mocha Start -> Deploy New Contract -> Manipulate Contract -> Make Assertion For Contract
-                    ^________________________________________________|
-*/
-
-/* FINALLY note that ganache makes accounts for us!*/
-
-/* Web3 is used to access unlocked accounts on a "Ganache Local Test Network*/
-
-beforeEach(() => {
-   // Get a list of all accounts
-   web3.eth.getAccounts() // Returns a promise
-     .then(fetchedAccounts => {
-         console.log(fetchedAccounts);
-     });
-   
-   // Use one of those accounts to deploy contract
+  inbox = await new web3.eth.Contract(JSON.parse(interface))
+    .deploy({ data: bytecode, arguments: ['Hi there!'] })
+    .send({ from: accounts[0], gas: '1000000' });
+    
+  inbox.setProvider(provider);
 });
-
+ 
 describe('Inbox', () => {
-    it("deploys a contract", () => {
-        
-    });
-})
+  it('deploys a contract', () => {
+    assert.ok(inbox.options.address);
+  });
+  it('has a default message', async () => {
+    const message = await inbox.methods.message().call();
+    assert.equal(message, 'Hi there!');
+  });
+  it('can change the message', async () => {
+     await inbox.methods.setMessage('bye').send({ from: accounts[0] });
+     const message = await inbox.methods.message().call();
+     assert.equal(message, 'bye');
+  });
+});
